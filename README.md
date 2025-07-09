@@ -1,16 +1,26 @@
-# generalized-simplex-derivatives
-Python implementation of Generalized Simplex Gradient, Hessian, and generalized estimators with error bounds
-#  Generalized Simplex Derivative Estimation and Error Bounds
+# Generalized Simplex Derivative Approximations
+*A research-driven toolkit for implementing and testing optimization methods across platforms.*
 
-## Project Summary
 
-This project implements and tests **derivative-free approximations** for gradients, Hessians, and third-order tensors using **generalized simplex methods** (GSG, GSH, GST), including:
 
--  Accurate estimation of order‑p derivatives from function values
--  Symbolic validation via SymPy
--  Automatic or manual direction matrices
--  Analytical Lipschitz-based error bounds
--  Flexible interfaces (CLI, function-based, manual)
+
+##  Overview
+
+This repository contains a clean Python toolkit for estimating **gradients**, **Hessians**, and early prototypes of **third-order derivatives** using simplex-based methods.
+
+It supports:
+- Generalized Simplex Gradient (GSG)
+- Generalized Simplex Hessian (GSH)
+- Preliminary implementation of third-order (Tressian) estimation
+
+The framework is designed for flexibility: it works with both symbolic functions and raw function evaluations, making it useful for a wide range of numerical analysis and optimization tasks.
+
+Ideal for:
+- Derivative-free optimization
+- Numerical testing and benchmarking
+- Symbolic vs numerical method comparisons
+- Research and classroom use
+
 
 This work is part of a **research project under Prof. Gabriel Jarry-Bolduc** at Mount Royal University (MRU), focusing on *black-box optimization and error-bound analysis*.
 
@@ -23,7 +33,6 @@ This work is part of a **research project under Prof. Gabriel Jarry-Bolduc** at 
 | **GSG** | Generalized Simplex Gradient (∇f) |
 | **GSH** | Generalized Simplex Hessian (∇²f) |
 | **GST** | Generalized Simplex Tressian (∇³f) |
-| **Generalized** | Recursive simplex derivative up to any order-p |
 | **Error Bounds** | Lipschitz-based theoretical bounds for each approximation |
 
 ---
