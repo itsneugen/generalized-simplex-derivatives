@@ -24,63 +24,207 @@ Ideal for:
 
 This work is part of a **research project under Prof. Gabriel Jarry-Bolduc** at Mount Royal University (MRU), focusing on *black-box optimization and error-bound analysis*.
 
----
-
-##  Methods Implemented
-
-| Method | Description |
-|--------|-------------|
-| **GSG** | Generalized Simplex Gradient (∇f) |
-| **GSH** | Generalized Simplex Hessian (∇²f) |
-| **GST** | Generalized Simplex Tressian (∇³f) |
-| **Error Bounds** | Lipschitz-based theoretical bounds for each approximation |
 
 ---
+##  Project Structure
 
+This repository contains Python and MATLAB implementations related to derivative-free approximation techniques, primarily focusing on estimating gradients, Hessians, and third-order tensors using Generalized Simplex methods.
+
+```
+├── gsg.py                # Core logic for Generalized Simplex Gradient (GSG)
+├── gsh.py                # Core logic for Generalized Simplex Hessian (GSH)
+├── tres.py               # Core logic for third-order Tressian estimation (GST)
+│
+├── testgsg.py            # CLI and interactive tester for GSG
+├── testgsh.py            # CLI and interactive tester for GSH
+├── testgst.py            # CLI and interactive tester for GST (Tressian)
+│
+├── run_example.py        # General-purpose script to test all variants (GSG, GSH, GST)
+├── gen.py                # Early work on generalized higher-order simplex approximation(on progress)
+├── testgen.py            # Testing harness for gen.py
+├── gcsg.py               # Centered variant of GSG (optional/experimental)
+├── gcsh.py               # Centered variant of GSH (optional/experimental)
+│
+├── matlab/               # MATLAB implementations (kept minimal but usable)
 
 ```
 
+>  Note: While the spotlight is on GSG, GSH, and GST, other files are included for completeness and experimentation. MATLAB versions are also available for users who prefer that environment.
+
+##  Features Overview
+
+This repository provides Python tools for estimating derivatives of different orders (gradient, Hessian, third-order tensor) using finite difference schemes. Each tool is designed to be flexible, accurate, and beginner-friendly, with both command-line and interactive modes.
+
+###  Available Estimators
+
+| File         | Derivative Order | Description                        |
+|--------------|------------------|------------------------------------|
+| `testgsg.py` | First-order      | Estimates gradient (GSG method)    |
+| `testgsh.py` | Second-order     | Estimates Hessian (GSH method)     |
+| `testgst.py` | Third-order      | Estimates 3rd-order tensor (GST)   |
+
+All three scripts share a **uniform interface**, so once you learn one, you can use all easily.
+
 ---
 
-##  How to Use
+###  How to Run (Any of GSG / GSH / GST)
 
-###  Option 1: Run in One Line (GSG/GSH/GST/generalized)
+#### Command-Line Mode
+Run script in one line:
+
 ```bash
-python testgen.py --expr "x0**2*x1 + 3*x1**2" --x0 1,2 --order 2 --h 0.01 --all
+python testgsg.py --x0 1 2 --function "x0**2 + 3*x1**2" --h 0.01
 ```
-- Change the expression, point, or order as needed
-- Displays numeric result, symbolic validation, and errors
 
-###  Option 2: Modify Inputs in File
-Use `run_example.py` to:
-- Set your function, input point, directions, and step sizes
-- Run once to see full output
+All will:
+- Use `x0 = [1, 2]`
+- Use the given function string
+- Use standard basis (normalized)
+- Compute and display the derivative (GSG, GSH, or GST)
+- Compare with symbolic derivative (if possible)
+- Show Lipschitz-based error bound (where supported)
 
-###  Option 3: Interactive CLI for GSH
+####  Interactive Mode (Optional)
+If a user prefers prompts:
 ```bash
-python testcombinedgsh.py
+python testgsh.py --interactive
 ```
-- Choose between symbolic function mode or raw values
-- Optionally compare with true Hessian and error bound
+It will guide you through input step-by-step.
 
----
-
-##  Example Output
-
-```
-Approximate Hessian at x0 (GSH):
- [[4. 3.]
-  [3. 6.]]
-True Hessian at x0:
- [[4. 2.]
-  [2. 6.]]
-Error:
- [[0. 1.]
-  [1. 0.]]
-GSH error bound: 16.0
+####  Manual Function-Value Mode
+For black-box or experimental functions, provide values directly:
+```bash
+python testgsh.py --manual --x0 1 2 --S "0.01 0; 0 0.01" --values "7.0, 7.02, 7.12"
 ```
 
 ---
+
+###  Sample Outputs
+
+Each tool prints consistent outputs including approximations, true values (if available), absolute errors, and Lipschitz-based error bounds.
+
+###  Gradient (GSG)
+
+```bash
+python testgsg.py --x0 1 2 --function "x0**2 + 3*x1**2" --h 0.01
+```
+
+**Output:**
+```
+S matrix:
+ [[0.01 0.  ]
+ [0.   0.01]]
+Approximate gradient (GSG): [ 2.01 12.03]
+True gradient: [ 2. 12.]
+Max Absolute Error: 0.03
+Estimated Lipschitz constant L: 6.0
+Lipschitz-based error bound: 0.06
+```
+
+---
+
+###  Hessian (GSH)
+
+```bash
+python testgsh.py --x0 1 2 --function "x0**2 * x1 + 3*x1**2" --h 0.01
+```
+
+**Output:**
+```
+S matrix:
+ [[1. 0.]
+ [0. 1.]]
+T matrix:
+ [[1. 0.]
+ [0. 1.]]
+Approximate Hessian (GSH): [[4. 3.]
+                            [3. 6.]]
+True Hessian:               [[4. 2.]
+                            [2. 6.]]
+Max Absolute Error: 1.0
+Estimated Lipschitz constant: 2.0
+Lipschitz-based error bound: 16.0
+```
+
+---
+
+###  Third-Order Tensor (GST)
+
+```bash
+python testgst.py --x0 1 2 --function "x0**2 * x1 + 3*x1**2" --h 0.01
+```
+
+**Output:**
+```
+Estimated third-order tensor (Tressian):
+ [[[0. 2.]
+   [2. 0.]]
+ 
+  [[2. 0.]
+   [0. 0.]]]
+
+True Tressian at x0:
+ [[[0. 2.]
+   [2. 0.]]
+ 
+  [[2. 0.]
+   [0. 0.]]]
+
+Absolute error tensor:
+ [[[0. 0.]
+   [0. 0.]]
+ 
+  [[0. 0.]
+   [0. 0.]]]
+
+Estimated Lipschitz constant for Tressian: 0
+Tressian error bound (auto-estimated L): 0
+```
+
+---
+
+###  Additional Utilities
+
+- **`run_example.py`**: A general-purpose script to test GSG, GSH, GST, or even higher-order approximations (P-th order). Customize function, directions, and order within the file.
+
+- **Symbolic Comparisons**: Compare numerical approximations with true symbolic derivatives.
+- **Lipschitz Bound Estimation**: Automatically estimates the Lipschitz constant to provide an error bound.
+- **Normalization**: Ensures the direction matrices are normalized to keep bounds meaningful.
+
+
+---
+
+####  Interactive Mode (Optional)
+If a user prefers prompts:
+```bash
+python testgsh.py --interactive
+```
+It will guide you through input step-by-step.
+
+####  Manual Function-Value Mode
+For black-box or experimental functions, provide values directly:
+```bash
+python testgsh.py --manual --x0 1 2 --S "0.01 0; 0 0.01" --values "7.0, 7.02, 7.12"
+```
+(Works for all three: `testgsg.py`, `testgsh.py`, `testgst.py`)
+
+####  Help Mode
+To quickly see help and usage instructions:
+```bash
+python testgsg.py --help
+```
+You’ll get a summary of all available flags, expected input format, and usage examples.
+
+---
+
+
+###  MATLAB Support (Optional)
+
+MATLAB versions of some methods (GSG, GSH) are included in the repository for academic benchmarking and comparison purposes.
+
+---
+
+
 
 ##  Notes
 
@@ -101,14 +245,34 @@ pip install numpy sympy
 ```
 
 ---
+## References
+Jarry-Bolduc, G. (2023). A Matrix Algebra Approach to Approximate the Hessian. University of British Columbia.
 
+Audet, C., & Hare, W. (2017). Derivative-Free and Blackbox Optimization. Springer.
+
+Kelley, C. T. (1999). Iterative Methods for Optimization. SIAM.
+
+Vicente, L. N. (2008). Optimization Without Derivatives.
+
+---
 ##  License
 
 MIT License – see [LICENSE](./LICENSE) for full details.
 
 ---
 
-##  Authors
+##  Authors & Acknowledgments
 
-- **Gaurav [Lead Student Researcher]**
-- **Prof. Gabriel Jarry-Bolduc [Supervisor]**
+This project was developed as part of a supervised research collaboration at Mount Royal University (MRU), with the guidance of:
+
+Prof. Gabriel Jarry-Bolduc
+Department of Mathematics and Computing
+gabjarry@gmail.com
+
+Gaurav Neupane
+Undergraduate Research Assistant
+B.Sc. Computer Science, MRU
+(https://github.com/itsneugen)
+
+I thank Prof. Jarry-Bolduc for his mentorship and for providing key mathematical insights and theoretical materials during the development of these implementations.
+
