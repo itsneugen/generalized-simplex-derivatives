@@ -84,6 +84,7 @@ All will:
 - Compare with symbolic derivative (if possible)
 - Show Lipschitz-based error bound (where supported)
 
+
 ####  Interactive Mode (Optional)
 If a user prefers prompts:
 ```bash
@@ -91,11 +92,40 @@ python testgsh.py --interactive
 ```
 It will guide you through input step-by-step.
 
+
+
 ####  Manual Function-Value Mode
+
+Use `--manual` to compute GSG, GSH, or GST with pre-evaluated function values.
+
+**Inputs**:
+- `--x0`: Base point, e.g., `--x0 1 2` for \( x_0 = [1, 2] \).
+- `--S`: Direction matrix \( S \) (and \( T, U = S \) for GST), e.g., `"0.01 0; 0 0.01"` for \( S = 0.01 \cdot I \).
+- `--values`: Comma-separated values in order:
+
+**Example** (for \( f(x_0, x_1) = x_0^2 x_1 + 3 x_1^2 \), \( x_0 = [1, 2] \), \( h = 0.01 \)):
+- Compute: \( f(1, 2) = 14 \), \( f(1.01, 2) = 14.0201 \), \( f(1, 2.01) = 14.1303 \), \( f(1.01, 2.01) = 14.170601 \).
+
+
+**Tip**: Compute values at \( x_0 + \) combinations of \( S[:,i] \). Check `--help` for details.
+
+
+**Command**:
+```bash
+python testgsg.py --manual --x0 1 2 --S "0.01 0; 0 0.01" --values "14.0, 14.0201, 14.1303"
 For black-box or experimental functions, provide values directly:
 ```bash
 python testgsh.py --manual --x0 1 2 --S "0.01 0; 0 0.01" --values "7.0, 7.02, 7.12"
 ```
+(Works for all three: `testgsg.py`, `testgsh.py`, `testgst.py`)
+
+
+####  Help Mode
+To quickly see help and usage instructions:
+```bash
+python testgsg.py --help
+```
+You’ll get a summary of all available flags, expected input format, and usage examples.
 
 ---
 
@@ -111,14 +141,15 @@ python testgsg.py --x0 1 2 --function "x0**2 + 3*x1**2" --h 0.01
 
 **Output:**
 ```
+Using symbolic function and standard basis:
 S matrix:
- [[0.01 0.  ]
- [0.   0.01]]
+ [[1. 0.]
+ [0. 1.]]
 Approximate gradient (GSG): [ 2.01 12.03]
 True gradient: [ 2. 12.]
-Max Absolute Error: 0.03
+Max Absolute Error: 0.0299
 Estimated Lipschitz constant L: 6.0
-Lipschitz-based error bound: 0.06
+Lipschitz-based error bound: 0.0424
 ```
 
 ---
@@ -131,19 +162,20 @@ python testgsh.py --x0 1 2 --function "x0**2 * x1 + 3*x1**2" --h 0.01
 
 **Output:**
 ```
+Using symbolic function and standard basis:
 S matrix:
  [[1. 0.]
- [0. 1.]]
+  [0. 1.]]
 T matrix:
  [[1. 0.]
- [0. 1.]]
-Approximate Hessian (GSH): [[4. 3.]
-                            [3. 6.]]
-True Hessian:               [[4. 2.]
-                            [2. 6.]]
-Max Absolute Error: 1.0
-Estimated Lipschitz constant: 2.0
-Lipschitz-based error bound: 16.0
+  [0. 1.]]
+Approximate Hessian (GSH): [[4.   2.01]
+                           [2.01 6.  ]]
+True Hessian: [[4. 2.]
+              [2. 6.]]
+Max Absolute Error: 0.01
+Estimated Lipschitz constant: 2.00
+Lipschitz-based error bound: 0.16
 ```
 
 ---
@@ -156,64 +188,31 @@ python testgst.py --x0 1 2 --function "x0**2 * x1 + 3*x1**2" --h 0.01
 
 **Output:**
 ```
+Normalized S, T, U direction matrices:
+ [[1. 0.]
+  [0. 1.]]
+
 Estimated third-order tensor (Tressian):
- [[[0. 2.]
-   [2. 0.]]
- 
-  [[2. 0.]
-   [0. 0.]]]
+ [[[24.01  0.   ]
+   [ 0.    0.   ]]
+  [[ 0.    0.   ]
+   [ 0.   48.01 ]]]
 
 True Tressian at x0:
- [[[0. 2.]
-   [2. 0.]]
- 
-  [[2. 0.]
-   [0. 0.]]]
+ [[[24.  0.]
+   [ 0.  0.]]
+  [[ 0.  0.]
+   [ 0. 48.]]]
 
 Absolute error tensor:
- [[[0. 0.]
-   [0. 0.]]
- 
-  [[0. 0.]
-   [0. 0.]]]
+ [[[0.01 0.  ]
+   [0.   0.  ]]
+  [[0.   0.  ]
+   [0.   0.01]]]
 
-Estimated Lipschitz constant for Tressian: 0
-Tressian error bound (auto-estimated L): 0
+Estimated Lipschitz constant for Tressian at x0: 24.0
+Tressian error bound (auto-estimated L): 0.3394
 ```
-
----
-
-###  Additional Utilities
-
-- **`run_example.py`**: A general-purpose script to test GSG, GSH, GST, or even higher-order approximations (P-th order). Customize function, directions, and order within the file.
-
-- **Symbolic Comparisons**: Compare numerical approximations with true symbolic derivatives.
-- **Lipschitz Bound Estimation**: Automatically estimates the Lipschitz constant to provide an error bound.
-- **Normalization**: Ensures the direction matrices are normalized to keep bounds meaningful.
-
-
----
-
-####  Interactive Mode (Optional)
-If a user prefers prompts:
-```bash
-python testgsh.py --interactive
-```
-It will guide you through input step-by-step.
-
-####  Manual Function-Value Mode
-For black-box or experimental functions, provide values directly:
-```bash
-python testgsh.py --manual --x0 1 2 --S "0.01 0; 0 0.01" --values "7.0, 7.02, 7.12"
-```
-(Works for all three: `testgsg.py`, `testgsh.py`, `testgst.py`)
-
-####  Help Mode
-To quickly see help and usage instructions:
-```bash
-python testgsg.py --help
-```
-You’ll get a summary of all available flags, expected input format, and usage examples.
 
 ---
 
@@ -267,12 +266,12 @@ This project was developed as part of a supervised research collaboration at Mou
 
 Prof. Gabriel Jarry-Bolduc
 Department of Mathematics and Computing
-gabjarry@gmail.com
+https://github.com/DFOdude
 
 Gaurav Neupane
 Undergraduate Research Assistant
 B.Sc. Computer Science, MRU
-(https://github.com/itsneugen)
+https://github.com/itsneugen
 
 I thank Prof. Jarry-Bolduc for his mentorship and for providing key mathematical insights and theoretical materials during the development of these implementations.
 
