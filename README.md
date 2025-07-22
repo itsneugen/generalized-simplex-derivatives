@@ -1,43 +1,42 @@
 # Generalized Simplex Derivative Approximations
-*A research-driven toolkit for implementing and testing optimization methods across platforms.*
+*A research-focused framework for applying and evaluating optimization techniques across various platforms, such as methods for approximating derivatives.*
 
 
 
 
 ##  Overview
 
-This repository contains a clean Python toolkit for estimating **gradients**, **Hessians**, and early prototypes of **third-order derivatives** using simplex-based methods.
+This repository provides a Python-based framework for computing approximations of gradients, Hessians, and experimental third-order derivatives, with additional MATLAB implementations.
 
-It supports:
+The main methods contained in this repository are:
 - Generalized Simplex Gradient (GSG)
 - Generalized Simplex Hessian (GSH)
-- Preliminary implementation of third-order (Tressian) estimation
+- Generalized Simplex Tressian (GST)
 
-The framework is designed for flexibility: it works with both symbolic functions and raw function evaluations, making it useful for a wide range of numerical analysis and optimization tasks.
+The framework is designed for flexibility: The input can be either symbolic function or a list of functional values, making it useful in numerical analysis and optimization tasks.
 
-Ideal for:
+The codes may be useful in:
 - Derivative-free optimization
 - Numerical testing and benchmarking
-- Symbolic vs numerical method comparisons
 - Research and classroom use
 
 
-This work is part of a **research project under Prof. Gabriel Jarry-Bolduc** at Mount Royal University (MRU), focusing on *black-box optimization and error-bound analysis*.
+This work is part of a **research project under Prof. Gabriel Jarry-Bolduc** at Mount Royal University (MRU), focusing on *derivative-free optimization and numerical analysis*.
 
 
 ---
 ##  Project Structure
 
-This repository contains Python and MATLAB implementations related to derivative-free approximation techniques, primarily focusing on estimating gradients, Hessians, and third-order tensors using Generalized Simplex methods.
+This repository contains Python and MATLAB implementations related to derivative-free approximation techniques, primarily focusing on approximating gradients, Hessians, and third-order tensors using Generalized Simplex methods.
 
 ```
 ├── gsg.py                # Core logic for Generalized Simplex Gradient (GSG)
 ├── gsh.py                # Core logic for Generalized Simplex Hessian (GSH)
-├── tres.py               # Core logic for third-order Tressian estimation (GST)
+├── tres.py               # Core logic for Generalized Simplex Tressian (GST)
 │
 ├── testgsg.py            # CLI and interactive tester for GSG
 ├── testgsh.py            # CLI and interactive tester for GSH
-├── testgst.py            # CLI and interactive tester for GST (Tressian)
+├── testgst.py            # CLI and interactive tester for GST 
 │
 ├── run_example.py        # General-purpose script to test all variants (GSG, GSH, GST)
 ├── gen.py                # Early work on generalized higher-order simplex approximation(on progress)
@@ -49,21 +48,21 @@ This repository contains Python and MATLAB implementations related to derivative
 
 ```
 
->  Note: While the spotlight is on GSG, GSH, and GST, other files are included for completeness and experimentation. MATLAB versions are also available for users who prefer that environment.
+>  Note: While the spotlight is on GSG, GSH, and GST, other files are included for completeness and experimentation. MATLAB versions are also available for users.
 
 ##  Features Overview
 
-This repository provides Python tools for estimating derivatives of different orders (gradient, Hessian, third-order tensor) using finite difference schemes. Each tool is designed to be flexible, accurate, and beginner-friendly, with both command-line and interactive modes.
+This repository provides Python tools for approximating derivatives of different orders (gradient, Hessian, third-order tensor) using generalization of finite difference approximation methods. Each tool is designed to be flexible and beginner-friendly, with both command-line and interactive modes. The accuracy of each method can be controlled by adjusting the step size and the choice of direction matrices.
 
 ###  Available Estimators
 
 | File         | Derivative Order | Description                        |
 |--------------|------------------|------------------------------------|
-| `testgsg.py` | First-order      | Estimates gradient (GSG method)    |
-| `testgsh.py` | Second-order     | Estimates Hessian (GSH method)     |
-| `testgst.py` | Third-order      | Estimates 3rd-order tensor (GST)   |
+| `testgsg.py` | First-order      | Approximate gradient (GSG method)    |
+| `testgsh.py` | Second-order     | Approximate Hessian (GSH method)     |
+| `testgst.py` | Third-order      | Approximate Tressian (GST method)   |
 
-All three scripts share a **uniform interface**, so once you learn one, you can use all easily.
+All three scripts follow a **consistent interface**, making it easy to switch between methods and apply the same workflow across different derivative orders.
 
 ---
 
@@ -76,14 +75,28 @@ Run script in one line:
 python testgsg.py --x0 1 2 --function "x0**2 + 3*x1**2" --h 0.01
 ```
 
-All will:
-- Use `x0 = [1, 2]`
-- Use the given function string
-- Use standard basis (normalized)
-- Compute and display the derivative (GSG, GSH, or GST)
-- Compare with symbolic derivative (if possible)
-- Show Lipschitz-based error bound (where supported)
+**Parameter Descriptions**:
 
+- `--x0`:  The initial point of interest for derivative estimation, provided as a row vector of space-separated values
+    (e.g., `--x0 1 2` for the point $[1, 2]$).
+- `--function`:  Function to differentiate, written using Python syntax with variables `x0`, `x1`, etc.  
+    (e.g., The function `x0**2 + 3*x1**2` represents `f(x0, x1) = x0² + 3x1²`. The number of variables in your function          depends on how many values you provide to `--x0`. Each input value becomes one variable:
+   
+    `--x0 1 2 → 2 variables → x0, x1`
+
+    `--x0 1 2 3 → 3 variables → x0, x1, x2`
+
+  You must use these variable names (`x0, x1, x2`, etc.) inside the `--function` string.
+
+- `--h`:  Step size for the finite difference approximation. Controls the precision (e.g., `--h 0.01`).
+
+
+ **What the Script Does** :
+- Evaluates the derivative (Gradient for GSG, Hessian for GSH, or Tressian for GST) at the specified point `x0`.
+- Uses a normalized standard basis for computations.
+- Outputs the computed derivative.
+- Compares the result with the symbolic derivative, if available.
+- Provides a Lipschitz-based error bound for the approximation, where applicable.
 
 ####  Interactive Mode (Optional)
 If a user prefers prompts:
@@ -94,20 +107,26 @@ It will guide you through input step-by-step.
 
 
 
+
 ####  Manual Function-Value Mode
-
-Use `--manual` to compute GSG, GSH, or GST with pre-evaluated function values.
-
-**Inputs**:
-- `--x0`: Base point, e.g., `--x0 1 2` for \( x_0 = [1, 2] \).
-- `--S`: Direction matrix \( S \) (and \( T, U = S \) for GST), e.g., `"0.01 0; 0 0.01"` for \( S = 0.01 \cdot I \).
-- `--values`: Comma-separated values in order:
-
-**Example** (for \( f(x_0, x_1) = x_0^2 x_1 + 3 x_1^2 \), \( x_0 = [1, 2] \), \( h = 0.01 \)):
-- Compute: \( f(1, 2) = 14 \), \( f(1.01, 2) = 14.0201 \), \( f(1, 2.01) = 14.1303 \), \( f(1.01, 2.01) = 14.170601 \).
+Use the `--manual` flag to compute GSG, GSH, or GST using pre-evaluated function values where the function formula is unavailable.
 
 
-**Tip**: Compute values at \( x_0 + \) combinations of \( S[:,i] \). Check `--help` for details.
+**Parameter Descriptions**:
+
+`--manual`: Enable manual mode
+
+`--x0`: Point of interest (e.g., `--x0 1 2` gives x0 = [1, 2])
+
+`--S`: Direction matrix S (and also T or U for higher orders) entered as a string of semicolon-separated rows with space-separated values 
+
+
+`--values`: Function values as comma-separated list
+
+
+**Example** 
+- Compute: `f(1, 2) = 14`, `f(1.01, 2) = 14.0201`, `f(1, 2.01) = 14.1303`, `f(1.01, 2.01) = 14.170601`.
+
 
 
 **Command**:
@@ -131,7 +150,7 @@ You’ll get a summary of all available flags, expected input format, and usage 
 
 ###  Sample Outputs
 
-Each tool prints consistent outputs including approximations, true values (if available), absolute errors, and Lipschitz-based error bounds.
+Each method prints consistent outputs including approximations, true values (if available), absolute errors, and an approximation of the Lipschitz-based error bounds defined in **Jarry- Bolduc's PhD thesis, 2023**.
 
 ###  Gradient (GSG)
 
@@ -147,7 +166,7 @@ S matrix:
  [0. 1.]]
 Approximate gradient (GSG): [ 2.01 12.03]
 True gradient: [ 2. 12.]
-Max Absolute Error: 0.0299
+Absolute Error: 0.0299
 Estimated Lipschitz constant L: 6.0
 Lipschitz-based error bound: 0.0424
 ```
@@ -173,7 +192,7 @@ Approximate Hessian (GSH): [[4.   2.01]
                            [2.01 6.  ]]
 True Hessian: [[4. 2.]
               [2. 6.]]
-Max Absolute Error: 0.01
+Absolute Error: 0.01
 Estimated Lipschitz constant: 2.00
 Lipschitz-based error bound: 0.16
 ```
@@ -204,14 +223,14 @@ True Tressian at x0:
   [[ 0.  0.]
    [ 0. 48.]]]
 
-Absolute error tensor:
+Absolute error:
  [[[0.01 0.  ]
    [0.   0.  ]]
   [[0.   0.  ]
    [0.   0.01]]]
 
 Estimated Lipschitz constant for Tressian at x0: 24.0
-Tressian error bound (auto-estimated L): 0.3394
+Tressian error bound (using Estimated Lipschitz contant): 0.3394
 ```
 
 ---
@@ -219,7 +238,7 @@ Tressian error bound (auto-estimated L): 0.3394
 
 ###  MATLAB Support (Optional)
 
-MATLAB versions of some methods (GSG, GSH) are included in the repository for academic benchmarking and comparison purposes.
+MATLAB versions of some methods (GSG, GSH) are included in the repository.
 
 ---
 
@@ -227,7 +246,6 @@ MATLAB versions of some methods (GSG, GSH) are included in the repository for ac
 
 ##  Notes
 
-- All matrices **S**, **T** used for direction vectors are **normalized** before derivative computation to tighten error bounds.
 - Symbolic derivatives and Lipschitz constants are automatically computed using **SymPy**.
 
 ---
@@ -245,7 +263,7 @@ pip install numpy sympy
 
 ---
 ## References
-Jarry-Bolduc, G. (2023). A Matrix Algebra Approach to Approximate the Hessian. University of British Columbia.
+Jarry-Bolduc, G. (2023). Numerical analysis for derivative-free optimization. University of British Columbia.
 
 Audet, C., & Hare, W. (2017). Derivative-Free and Blackbox Optimization. Springer.
 
@@ -264,14 +282,24 @@ MIT License – see [LICENSE](./LICENSE) for full details.
 
 This project was developed as part of a supervised research collaboration at Mount Royal University (MRU), with the guidance of:
 
-Prof. Gabriel Jarry-Bolduc
-Department of Mathematics and Computing
-https://github.com/DFOdude
+Prof. Gabriel Jarry-Bolduc  
 
-Gaurav Neupane
-Undergraduate Research Assistant
-B.Sc. Computer Science, MRU
-https://github.com/itsneugen
+Department of Mathematics and Computing, Mount Royal University  
+
+B.Sc. Hons., Université du Québec à Trois-Rivières, 2017  
+
+ M.Sc., The University of British Columbia, 2019  
+
+ https://github.com/DFOdude
+
+Gaurav Neupane  
+
+Undergraduate Research Assistant  
+
+B.Sc. Computer Science, MRU  
+
+https://github.com/itsneugen  
+
 
 I thank Prof. Jarry-Bolduc for his mentorship and for providing key mathematical insights and theoretical materials during the development of these implementations.
 
