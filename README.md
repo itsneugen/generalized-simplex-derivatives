@@ -282,7 +282,7 @@ MIT License – see [LICENSE](./LICENSE) for full details.
 
 This project was developed as part of a supervised research collaboration at Mount Royal University (MRU), with the guidance of:
 
-Prof. Gabriel Jarry-Bolduc  
+**Prof. Gabriel Jarry-Bolduc**  
 
 Department of Mathematics and Computing, Mount Royal University  
 
@@ -292,13 +292,14 @@ B.Sc. Hons., Université du Québec à Trois-Rivières, 2017
 
  https://github.com/DFOdude
 
-Gaurav Neupane  
+**Gaurav Neupane**  
 
 Undergraduate Research Assistant  
 
 B.Sc. Computer Science, MRU  
 
 https://github.com/itsneugen  
+
 
 
 I thank Prof. Jarry-Bolduc for his mentorship and for providing key mathematical insights and theoretical materials during the development of these implementations.
